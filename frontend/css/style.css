@@ -1,0 +1,319 @@
+:root {
+    --bg-body: #f8fafc;
+    --bg-card: #ffffff;
+    --border-color: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --primary: #2563eb;
+    --primary-hover: #1d4ed8;
+    --sidebar-active-bg: #eff6ff;
+    --sidebar-active-border: #bfdbfe;
+    --badge-sent-bg: #eff6ff;
+    --badge-sent-text: #2563eb;
+    --badge-accepted-bg: #f0fdf4;
+    --badge-accepted-text: #16a34a;
+    --badge-draft-bg: #f1f5f9;
+    --badge-draft-text: #64748b;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Barra Superior */
+.barra-superior {
+    height: 64px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.marca i {
+    font-size: 1.35rem;
+    color: var(--primary);
+}
+
+.usuario {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.user-perfil {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-size: 1.15rem;
+}
+
+/* Layout Principal */
+.contenedor {
+    display: flex;
+    flex: 1;
+}
+
+/* Barra latetral */
+.barra-lateral {
+    width: 240px;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-color);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    transition: all 0.15s ease-in-out;
+}
+
+.nav-item i {
+    font-size: 1.05rem;
+    width: 20px;
+    text-align: center;
+}
+
+.nav-item:hover {
+    background-color: #f1f5f9;
+    color: var(--text-main);
+}
+
+/* Contenido */
+.contenedor-principal {
+    flex: 1;
+    padding: 36px 48px;
+    max-width: 1200px;
+}
+
+.titulo-pagina {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+}
+
+.btn-primario {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    margin-bottom: 32px;
+    transition: background-color 0.15s ease;
+}
+
+.btn-primario:hover {
+    background-color: var(--primary-hover);
+}
+
+/* Tarjeta, Tabla y Filtros*/
+.tarjeta {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.tarjeta-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tarjeta-header h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.tabla-contenedor {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.filtros-barra {
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.filtros-grupo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.filtros-grupo label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.buscador {
+    position: relative;
+    width: 320px;
+}
+
+.buscador input {
+    width: 100%;
+    padding: 8px 36px 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.buscador input:focus {
+    border-color: var(--primary);
+}
+
+.buscador i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+.seleccion-estado {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background-color: #fff;
+    color: var(--text-main);
+    outline: none;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+th {
+    padding: 16px 24px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+}
+
+td {
+    padding: 18px 24px;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #1e293b;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+.estado {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.estado-enviado {
+    background-color: var(--badge-sent-bg);
+    color: var(--badge-sent-text);
+    border-color: #bfdbfe;
+}
+
+.estado-aceptado {
+    background-color: var(--badge-accepted-bg);
+    color: var(--badge-accepted-text);
+    border-color: #bbf7d0;
+}
+
+.estado-borrador {
+    background-color: var(--badge-draft-bg);
+    color: var(--badge-draft-text);
+    border-color: #cbd5e1;
+}
+
+/* Columna de Acciones */
+.action-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.action-link {
+    color: #334155;
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s ease;
+}
+
+.action-link:hover {
+    color: var(--primary);
+}
+
+.action-link i {
+    font-size: 0.95rem;
+}
