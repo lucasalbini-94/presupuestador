@@ -12,11 +12,11 @@
         <i class="fa-solid fa-user-group"></i>
         <span>Clientes</span>
       </a>
-      <a href="frontend/precios.php" class="nav-item <?php echo ($currentPage === 'precios') ? 'active' : ''; ?>">
+      <a href="/presupuestador/frontend/precios.php" class="nav-item <?php echo ($currentPage === 'precios') ? 'active' : ''; ?>">
         <i class="fa-regular fa-credit-card"></i>
         <span>Mis precios</span>
       </a>
-      <a href="frontend/configuracion.php" class="nav-item <?php echo ($currentPage === 'configuracion') ? 'active' : ''; ?>">
+      <a href="/presupuestador/frontend/configuracion.php" class="nav-item <?php echo ($currentPage === 'configuracion') ? 'active' : ''; ?>">
         <i class="fa-solid fa-gear"></i>
         <span>Configuración</span>
       </a>
