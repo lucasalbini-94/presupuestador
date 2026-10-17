@@ -50,17 +50,18 @@ CREATE TABLE IF NOT EXISTS unidad (
 CREATE TABLE IF NOT EXISTS trabajo (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
-    precio DECIMAL(10, 2) NOT NULL,
+    precio_base DECIMAL(10, 2) NOT NULL,
     id_categoria INT NOT NULL,
     id_unidad INT NOT NULL,
     CONSTRAINT FK_trabajo_categoria FOREIGN KEY (id_categoria) REFERENCES categoria(id),
     CONSTRAINT FK_trabajo_unidad FOREIGN KEY (id_unidad) REFERENCES unidad(id)
 );
 
-CREATE IF NOT EXISTS TABLE usuario_trabajo(
+CREATE TABLE IF NOT EXISTS usuario_trabajo (
     id_usuario INT NOT NULL,
     id_trabajo INT NOT NULL,
     precio_modificado DECIMAL(10, 2) NOT NULL,
+    PRIMARY KEY (id_usuario, id_trabajo),
     CONSTRAINT FK_usuartrab_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id),
     CONSTRAINT FK_usuartrab_trabajo FOREIGN KEY (id_trabajo) REFERENCES trabajo(id)
 );

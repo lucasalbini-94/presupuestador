@@ -1,18 +1,16 @@
 <?php
 // api/precios.php
-require_once __DIR__ . "/conexion.php";
-session_start();
+require_once __DIR__ . "/auth.php";
 
 header("Content-Type: application/json; charset=utf-8");
+$id_usuario = requerirUsuarioApi();
 
-// Si hay sesión se usa; si no, fallback a Martín Sosa (id 1) para pruebas locales
-$id_usuario = $_SESSION["usuario_id"] ?? 1;
+require_once __DIR__ . "/conexion.php";
 
 $metodo = $_SERVER["REQUEST_METHOD"];
 
-/* ==========================================================
-   GET - Listar trabajos con precio base o personalizado
-   ========================================================== */
+
+// GET: Listar trabajos con precio base o personalizado
 if ($metodo === "GET") {
     $sql = "SELECT 
                 t.id AS id_trabajo,
@@ -37,9 +35,8 @@ if ($metodo === "GET") {
     exit;
 }
 
-/* ==========================================================
-   POST - Modificar o fijar precio personalizado (UPSERT)
-   ========================================================== */
+
+// POST: Modificar o fijar precio personalizado
 if ($metodo === "POST") {
     $datos = json_decode(file_get_contents("php://input"), true);
 

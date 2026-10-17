@@ -54,9 +54,10 @@ INSERT INTO trabajo (id, nombre, precio_base, id_categoria, id_unidad) VALUES
 -- 3. USUARIOS Y CONFIGURACIONES
 -- =====================================================
 
+-- Contraseña de prueba para ambos usuarios: Demo1234! (solo desarrollo).
 INSERT INTO usuario (id, nombre, apellido, telefono, email, pass) VALUES
-(1, 'Martín', 'Sosa', '+54 11 4455-6677', 'martin.sosa@example.com', '$2y$10$e8wWwN3Z0b0n0X0p9aBCdeFGHIJKLMNOPQRSTUVWXYZabcdefghijkl'),
-(2, 'Federico', 'Ríos', '+54 11 5566-7788', 'federico.rios@example.com', '$2y$10$x9yYzM2A1c1o1Y1q8bCDeFGHIJKLMNOPQRSTUVWXYZabcdefghijkl');
+(1, 'Martín', 'Sosa', '+54 11 4455-6677', 'martin.sosa@example.com', '$2y$10$TV6a50eDn9KqV9iRnjKq.eAZgeFu89HB9qxujOuHkvjvLhrepjoKa'),
+(2, 'Federico', 'Ríos', '+54 11 5566-7788', 'federico.rios@example.com', '$2y$10$fFIdlGhSt4oawhw03C0PqeJfsTl5I8YYgf2t21rMKKnDxdyg25fga');
 
 INSERT INTO configuracion (id, id_usuario, validez_presupuesto, matricula, nro_matricula, porcentaje_matricula) VALUES
 (1, 1, 15, 1, 54210, 15),  -- Matriculado, recargo del 15%
@@ -68,7 +69,7 @@ INSERT INTO configuracion (id, id_usuario, validez_presupuesto, matricula, nro_m
 -- Solo se guardan los que el electricista modificó respecto a la base
 -- =====================================================
 
-INSERT INTO usuario_trabajo (id_usuario, id_trabajo, precio) VALUES
+INSERT INTO usuario_trabajo (id_usuario, id_trabajo, precio_modificado) VALUES
 -- Martín (usuario 1) ajustó algunos precios al alza:
 (1, 1, 3800.00),   -- Boca de cableado: base $3500 -> cobra $3800
 (1, 4, 1500.00),   -- Cañería a la vista: base $1400 -> cobra $1500

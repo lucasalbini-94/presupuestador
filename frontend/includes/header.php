@@ -1,3 +1,10 @@
+<?php
+require_once __DIR__ . "/../../api/auth.php";
+if (obtenerUsuarioAutenticado() === null) {
+  header("Location: login.html");
+  exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>

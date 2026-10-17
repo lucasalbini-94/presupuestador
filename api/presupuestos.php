@@ -1,15 +1,14 @@
 <?php
+require_once __DIR__ . "/auth.php";
+$id_usuario = requerirUsuarioApi();
+
 require_once __DIR__ . "/conexion.php";
 require_once __DIR__ . "/models/Presupuesto.php";
-
-session_start();
 
 header("Content-Type: application/json; charset=utf-8");
 
 $metodo = $_SERVER['REQUEST_METHOD'];
 $modelo = new Presupuesto($conexion);
-
-$id_usuario = isset($_GET['id_usuario']) ? (int)$_GET['id_usuario'] : 1;
 
 if ($metodo === 'GET') {
     // Si se piden los ultimos para el index

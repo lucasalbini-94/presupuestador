@@ -317,3 +317,87 @@ tr:last-child td {
 .action-link i {
     font-size: 0.95rem;
 }
+
+/* Login */
+.login-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Tarjeta del formulario */
+.tarjeta-login {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px, -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    max-width: 400px;
+    padding: 36px 32px;
+}
+
+.login-titulo {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 28px;
+    letter-spacing: -0.5px;
+}
+
+/* Disposición vertical de campos */
+.form-login {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.campo-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.campo-grupo label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.campo-grupo input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: #ffffff;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.campo-grupo input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Botón expandido al ancho completo */
+.btn-bloque {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+    margin-bottom: 0;
+}
+
+/* Mensaje de alerta de error */
+.login-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+    font-size: 0.88rem;
+    padding: 10px 14px;
+    border-radius: 8px;
+    text-align: center;
+}
