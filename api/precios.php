@@ -14,6 +14,7 @@ $metodo = $_SERVER["REQUEST_METHOD"];
 if ($metodo === "GET") {
     $sql = "SELECT 
                 t.id AS id_trabajo,
+                c.id AS id_categoria,
                 c.descripcion AS categoria,
                 t.nombre AS trabajo,
                 u.descripcion AS unidad,

@@ -82,6 +82,18 @@ body {
     font-size: 1.15rem;
 }
 
+.cerrar-sesion {
+    background-color: var(--primary);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
 /* Layout Principal */
 .contenedor {
     display: flex;
@@ -124,11 +136,27 @@ body {
     color: var(--text-main);
 }
 
+.nav-item.active {
+    background-color: var(--sidebar-active-bg);
+    border-color: var(--sidebar-active-border);
+    color: var(--primary);
+}
+
 /* Contenido */
 .contenedor-principal {
     flex: 1;
     padding: 36px 48px;
     max-width: 1200px;
+}
+
+.text-muted {
+    color: var(--text-muted);
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .titulo-pagina {
@@ -153,6 +181,7 @@ body {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     margin-bottom: 32px;
     transition: background-color 0.15s ease;
+    text-decoration: none;
 }
 
 .btn-primario:hover {
@@ -265,6 +294,10 @@ tr:last-child td {
     border-bottom: none;
 }
 
+.error-carga {
+    color: #b91c1c;
+}
+
 .estado {
     display: inline-block;
     padding: 4px 14px;
@@ -284,6 +317,18 @@ tr:last-child td {
 .estado-aceptado {
     background-color: var(--badge-accepted-bg);
     color: var(--badge-accepted-text);
+    border-color: #bbf7d0;
+}
+
+.estado-rechazado {
+    background-color: #fef2f2;
+    color: #b91c1c;
+    border-color: #fecaca;
+}
+
+.estado-facturado {
+    background-color: #f0fdf4;
+    color: #15803d;
     border-color: #bbf7d0;
 }
 
@@ -400,4 +445,348 @@ tr:last-child td {
     padding: 10px 14px;
     border-radius: 8px;
     text-align: center;
+}
+
+/* Cabecera de Nuevo Presupuesto */
+.page-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.codigo-presupuesto {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+/* Tarjetas de formulario */
+.form-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: transparent;
+    color: #334155;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #f1f5f9;
+}
+
+.btn-primary-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-primary-sm:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn-primary-sm:disabled,
+.btn-primario:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+}
+
+/* Grilla de Datos de Cliente */
+.form-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 160px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.form-control {
+    padding: 9px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    outline: none;
+    background-color: #ffffff;
+    color: var(--text-main);
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+}
+
+.cliente-buscador {
+    position: relative;
+    width: 280px;
+}
+
+.resultados-clientes {
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    max-height: 240px;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.resultado-cliente {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    border: 0;
+    background: transparent;
+    color: var(--text-main);
+    text-align: left;
+    cursor: pointer;
+}
+
+.resultado-cliente:hover,
+.resultado-cliente:focus {
+    background: #eff6ff;
+    outline: none;
+}
+
+.abm-estado {
+    margin-top: 12px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Filas dinámicas de Trabajos */
+.trabajos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.trabajo-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.trabajo-item select {
+    flex: 1;
+    min-width: 140px;
+}
+
+.trabajo-item .input-precio {
+    width: 100px;
+    background-color: #f8fafc;
+}
+
+.trabajo-item .input-cantidad {
+    width: 70px;
+    text-align: center;
+}
+
+.trabajo-item .subtotal-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    min-width: 140px;
+    text-align: right;
+}
+
+.btn-icon-danger {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 6px;
+    font-size: 1rem;
+}
+
+.btn-icon-danger:hover {
+    color: #b91c1c;
+}
+
+/* Control de Ajuste general (Slider) */
+.ajuste-general-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.slider-custom {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 180px;
+    height: 6px;
+    border-radius: 5px;
+    background: #2563eb;
+    outline: none;
+}
+
+.slider-custom::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #2563eb;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Tarjeta de Gastos adicionales */
+.gastos-resumen {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-main);
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.gastos-valores {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+.gastos-valores strong {
+    color: var(--text-main);
+}
+
+/* Tarjeta Resumen y Precio Final */
+.resumen-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.precio-final-group {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.precio-sugerido {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Switch vista previa PDF */
+.switch-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--primary);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 38px;
+    height: 22px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider-round {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    border-radius: 24px;
+    transition: .3s;
+}
+
+.slider-round:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .3s;
+}
+
+input:checked+.slider-round {
+    background-color: var(--primary);
+}
+
+input:checked+.slider-round:before {
+    transform: translateX(16px);
+}
+
+.acciones-finales {
+    display: flex;
+    gap: 12px;
 }

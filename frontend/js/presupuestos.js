@@ -1,10 +1,15 @@
 const URL_API = "../api/presupuestos.php";
+let solicitudActual;
+const formatoMoneda = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: "ARS",
+    maximumFractionDigits: 2
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     const cuerpoTabla = document.querySelector("#cuerpoTabla");
     if (!cuerpoTabla) return;
 
-    // Detectamos si es index o la lista completa
     const esInicio = document.body.dataset.page === "index";
 
     if (esInicio) {
@@ -17,60 +22,108 @@ document.addEventListener("DOMContentLoaded", () => {
 
 async function cargarPresupuestos(url, incluirAcciones = false) {
     const tbody = document.querySelector("#cuerpoTabla");
+    if (!tbody) return;
+
     const columnas = incluirAcciones ? 5 : 4;
-    tbody.innerHTML = `<tr><td colspan="${columnas}">Cargando...</td></tr>`;
+    solicitudActual?.abort();
+    solicitudActual = new AbortController();
+    mostrarMensaje(tbody, columnas, "Cargando...");
 
     try {
-        const respuesta = await fetch(url);
+        const respuesta = await fetch(url, { signal: solicitudActual.signal });
         if (!respuesta.ok) {
             throw new Error(`Error ${respuesta.status}: No se pudo obtener la información`);
         }
         const presupuestos = await respuesta.json();
+        if (!Array.isArray(presupuestos)) {
+            throw new Error("La respuesta del servidor no tiene el formato esperado.");
+        }
         renderizarTabla(presupuestos, incluirAcciones);
     } catch (error) {
+        if (error.name === "AbortError") return;
         console.error(error);
-        tbody.innerHTML = `<tr><td colspan="${columnas}" style="color: red;">Error al cargar los datos.</td></tr>`;
+        mostrarMensaje(tbody, columnas, "Error al cargar los datos.", "error");
     }
+}
+
+function mostrarMensaje(tbody, columnas, mensaje, tipo = "") {
+    const fila = document.createElement("tr");
+    const celda = document.createElement("td");
+    celda.colSpan = columnas;
+    celda.textContent = mensaje;
+    if (tipo === "error") celda.className = "error-carga";
+    fila.appendChild(celda);
+    tbody.replaceChildren(fila);
 }
 
 function renderizarTabla(presupuestos, incluirAcciones) {
     const tbody = document.querySelector("#cuerpoTabla");
     const columnas = incluirAcciones ? 5 : 4;
-    tbody.innerHTML = "";
 
     if (presupuestos.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="${columnas}">No hay presupuestos registrados.</td></tr>`;
+        mostrarMensaje(tbody, columnas, "No hay presupuestos registrados.");
         return;
     }
 
+    const filas = document.createDocumentFragment();
     presupuestos.forEach(p => {
         const tr = document.createElement("tr");
 
-        let claseEstado = "estado-borrador";
-        const estado = p.estado ? p.estado.toLowerCase() : "";
-        if (estado === "enviado") claseEstado = "estado-enviado";
-        if (estado === "aceptado") claseEstado = "estado-aceptado";
+        tr.appendChild(crearCelda(p.nro));
+        tr.appendChild(crearCelda(p.cliente));
+        tr.appendChild(crearCelda(formatoMoneda.format(Number(p.total))));
 
-        const columnasBase = `
-            <td>${p.nro}</td>
-            <td>${p.cliente}</td>
-            <td>$${Number(p.total).toLocaleString("es-AR")}</td>
-            <td><span class="estado ${claseEstado}">${p.estado}</span></td>
-        `;
+        const celdaEstado = document.createElement("td");
+        const etiquetaEstado = document.createElement("span");
+        const estado = String(p.estado || "");
+        const estadoNormalizado = estado.toLowerCase();
+        const clasesPorEstado = {
+            enviado: "badge-active estado-enviado",
+            pendiente: "badge-active estado-enviado",
+            aceptado: "badge-active estado-aceptado",
+            aprobado: "badge-active estado-aceptado",
+            rechazado: "badge-inactive estado-rechazado",
+            facturado: "badge-active estado-facturado",
+            borrador: "badge-inactive estado-borrador"
+        };
+        etiquetaEstado.className = `badge ${clasesPorEstado[estadoNormalizado] || "badge-inactive estado-borrador"}`;
+        etiquetaEstado.textContent = estado;
+        celdaEstado.appendChild(etiquetaEstado);
+        tr.appendChild(celdaEstado);
 
-        const columnaAcciones = incluirAcciones ? `
-            <td>
-                <div class="action-links">
-                    <a href="ver_presupuesto.php?id=${p.id}" class="action-link"><i class="fa-regular fa-eye"></i> Ver</a>
-                    <a href="editar_presupuesto.php?id=${p.id}" class="action-link"><i class="fa-solid fa-pencil"></i> Editar</a>
-                    <a href="pdf_presupuesto.php?id=${p.id}" class="action-link"><i class="fa-regular fa-file-pdf"></i></a>
-                </div>
-            </td>
-        ` : "";
+        if (incluirAcciones) {
+            const celdaAcciones = document.createElement("td");
+            const acciones = document.createElement("div");
+            acciones.className = "action-links";
+            acciones.append(
+                crearEnlaceAccion(p.id, "Ver", "fa-regular fa-eye"),
+                crearEnlaceAccion(p.id, "Editar", "fa-solid fa-pencil")
+            );
+            celdaAcciones.appendChild(acciones);
+            tr.appendChild(celdaAcciones);
+        }
 
-        tr.innerHTML = columnasBase + columnaAcciones;
-        tbody.appendChild(tr);
+        filas.appendChild(tr);
     });
+
+    tbody.replaceChildren(filas);
+}
+
+function crearCelda(valor) {
+    const celda = document.createElement("td");
+    celda.textContent = valor ?? "";
+    return celda;
+}
+
+function crearEnlaceAccion(id, texto, claseIcono) {
+    const enlace = document.createElement("a");
+    enlace.href = `nuevo_presupuesto.php?id=${encodeURIComponent(id)}`;
+    enlace.className = "action-link";
+
+    const icono = document.createElement("i");
+    icono.className = claseIcono;
+    enlace.append(icono, document.createTextNode(` ${texto}`));
+    return enlace;
 }
 
 function configurarFiltros() {

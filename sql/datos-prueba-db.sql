@@ -87,9 +87,9 @@ INSERT INTO usuario_trabajo (id_usuario, id_trabajo, precio_modificado) VALUES
 -- =====================================================
 
 INSERT INTO cliente (id, nombre, apellido, direccion, telefono, email, id_usuario) VALUES
-(1, 'Estudio Jurídico Díaz & Asoc.', 'Av. Corrientes 1400 4B, CABA', '+54 11 4111-2233', 'contacto@diazasoc.com', 1),
+(1, 'Estudio Jurídico Díaz & Asoc.', '', 'Av. Corrientes 1400 4B, CABA', '+54 11 4111-2233', 'contacto@diazasoc.com', 1),
 (2, 'Luciana', 'Blanco', 'Calle Mendoza 320, Quilmes', '+54 11 4222-3344', 'luciana.blanco@gmail.com', 1),
-(3, 'Taller Mecánico El Rayo', 'Av. Hipólito Yrigoyen 8900, Lomas', '+54 11 4333-4455', 'taller.elrayo@yahoo.com', 2);
+(3, 'Taller Mecánico El Rayo', '', 'Av. Hipólito Yrigoyen 8900, Lomas', '+54 11 4333-4455', 'taller.elrayo@yahoo.com', 2);
 
 
 -- =====================================================
