@@ -77,15 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalDisplay) totalDisplay.textContent = `Total $${totalFinal.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
-    function actualizarTrabajosDeFila(fila) {
+    function actualizarTrabajosDeFila(fila, reiniciarSeleccion = true) {
         const categoria = fila.querySelector('.select-categoria');
         const trabajo = fila.querySelector('.select-trabajo');
         const precio = fila.querySelector('.input-precio');
         if (!categoria || !trabajo || !precio) return;
 
-        trabajo.value = '';
+        if (reiniciarSeleccion) {
+            trabajo.value = '';
+            precio.value = '';
+        }
         trabajo.disabled = categoria.value === '';
-        precio.value = '';
 
         trabajo.querySelectorAll('option[data-categoria]').forEach(opcion => {
             const disponible = opcion.dataset.categoria === categoria.value;
@@ -140,6 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 calcularTotales();
             }
         });
+        tablaTrabajos.querySelectorAll('tr').forEach(fila => {
+            actualizarTrabajosDeFila(fila, false);
+        });
     }
 
     // Habilitar / Deshabilitar Gastos Adicionales
@@ -157,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (inputAjuste) inputAjuste.addEventListener('input', calcularTotales);
+    calcularTotales();
 
     // Mandar por WhatsApp
     const btnEnviar = document.getElementById('btn-enviar-whatsapp');

@@ -95,10 +95,7 @@ function renderizarTabla(presupuestos, incluirAcciones) {
             const celdaAcciones = document.createElement("td");
             const acciones = document.createElement("div");
             acciones.className = "action-links";
-            acciones.append(
-                crearEnlaceAccion(p.id, "Ver", "fa-regular fa-eye"),
-                crearEnlaceAccion(p.id, "Editar", "fa-solid fa-pencil")
-            );
+            acciones.appendChild(crearEnlaceAccion(p.id, "Editar", "fa-solid fa-pencil"));
             celdaAcciones.appendChild(acciones);
             tr.appendChild(celdaAcciones);
         }

@@ -10,6 +10,20 @@ require_once __DIR__ . '/../api/conexion.php';
 require_once __DIR__ . '/../api/models/Presupuesto.php';
 
 $error = '';
+$idPresupuesto = null;
+$presupuesto_seleccionado = null;
+$idPresupuestoEntrada = $_SERVER['REQUEST_METHOD'] === 'POST'
+    ? ($_POST['id_presupuesto'] ?? '')
+    : ($_GET['id'] ?? '');
+
+if ($idPresupuestoEntrada !== '') {
+    $idPresupuesto = filter_var(
+        $idPresupuestoEntrada,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1]]
+    );
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idCliente = filter_var($_POST['id_cliente'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
     $idsTrabajo = $_POST['trabajo_id'] ?? [];
@@ -27,18 +41,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
+        if ($idPresupuestoEntrada !== '' && $idPresupuesto === false) {
+            throw new InvalidArgumentException('El identificador del presupuesto no es válido.');
+        }
         if ($idCliente === false || !$items) {
             throw new InvalidArgumentException('Seleccioná un cliente y al menos un trabajo válido.');
         }
-        (new Presupuesto($conexion))->guardar($id_usuario_activo, $idCliente, $items);
-        header('Location: presupuestos.php?creado=1');
+        (new Presupuesto($conexion))->guardar($id_usuario_activo, $idCliente, $items, $idPresupuesto ?: null);
+        header('Location: presupuestos.php?' . ($idPresupuesto ? 'actualizado=1' : 'creado=1'));
         exit;
     } catch (InvalidArgumentException $exception) {
         $error = $exception->getMessage();
     } catch (Throwable $exception) {
-        error_log('Error al crear presupuesto: ' . $exception->getMessage());
+        error_log('Error al guardar presupuesto: ' . $exception->getMessage());
         $error = 'No se pudo guardar el presupuesto. Intentá nuevamente.';
     }
+}
+
+if ($idPresupuesto !== null && $idPresupuesto !== false) {
+    $presupuesto_seleccionado = (new Presupuesto($conexion))->obtenerPorId(
+        $id_usuario_activo,
+        $idPresupuesto
+    );
+    if ($presupuesto_seleccionado === null) {
+        http_response_code(404);
+        $error = 'No se encontró el presupuesto solicitado.';
+    }
+} elseif ($idPresupuesto === false && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(400);
+    exit('El identificador del presupuesto no es válido.');
 }
 
 $stmt_clientes = $conexion->prepare(
@@ -62,6 +93,8 @@ $stmt_categorias = $conexion->prepare(
 );
 $stmt_categorias->execute();
 $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
+
+$filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -99,8 +132,8 @@ $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
         
         <header class="page-header">
           <div class="page-title">
-            <h1>Nuevo presupuesto</h1>
-            <p>Elegí un cliente y agregá los trabajos para calcular el presupuesto.</p>
+            <h1><?php echo $presupuesto_seleccionado ? 'Editar presupuesto' : 'Nuevo presupuesto'; ?></h1>
+            <p><?php echo $presupuesto_seleccionado ? 'Modificá el cliente o los trabajos del presupuesto.' : 'Elegí un cliente y agregá los trabajos para calcular el presupuesto.'; ?></p>
           </div>
         </header>
 
@@ -109,6 +142,7 @@ $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
         <?php endif; ?>
 
         <form action="nuevo_presupuesto.php" method="POST">
+          <input type="hidden" name="id_presupuesto" value="<?php echo $idPresupuestoEntrada !== '' ? htmlspecialchars((string)$idPresupuestoEntrada, ENT_QUOTES, 'UTF-8') : ''; ?>">
           <!-- Bloque 1: Seleccionar Cliente de la Base de Datos -->
           <div class="card form-section">
             <div class="section-header-flex">
@@ -120,10 +154,10 @@ $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
               <div class="form-group" style="grid-column: span 3;">
                 <label for="id_cliente">Seleccionar Cliente Existente *</label>
                 <select name="id_cliente" id="id_cliente" class="input-table" required>
-                  <option value="" disabled selected>Seleccione un cliente...</option>
+                  <option value="" disabled <?php echo $presupuesto_seleccionado ? '' : 'selected'; ?>>Seleccione un cliente...</option>
                   <?php foreach ($clientes as $c): ?>
-                    <option value="<?php echo $c['id']; ?>">
-                      <?php echo htmlspecialchars($c['nombre'] . ' ' . $c['apellido']); ?>
+                    <option value="<?php echo (int)$c['id']; ?>" <?php echo $presupuesto_seleccionado && (int)$presupuesto_seleccionado['id_cliente'] === (int)$c['id'] ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($c['nombre'] . ' ' . $c['apellido'], ENT_QUOTES, 'UTF-8'); ?>
                     </option>
                   <?php endforeach; ?>
                 </select>
@@ -151,34 +185,37 @@ $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
                   </tr>
                 </thead>
                 <tbody id="tabla-trabajos">
+                  <?php foreach ($filas_trabajo as $fila_trabajo): ?>
                   <tr>
                     <td>
                       <select name="categoria[]" class="input-table select-categoria" required>
-                        <option value="" disabled selected>Seleccionar categoría...</option>
+                        <option value="" disabled <?php echo $fila_trabajo ? '' : 'selected'; ?>>Seleccionar categoría...</option>
                         <?php foreach ($categorias as $categoria): ?>
-                          <option value="<?php echo (int)$categoria['id']; ?>"><?php echo htmlspecialchars($categoria['descripcion'], ENT_QUOTES, 'UTF-8'); ?></option>
+                          <option value="<?php echo (int)$categoria['id']; ?>" <?php echo $fila_trabajo && (int)$fila_trabajo['id_categoria'] === (int)$categoria['id'] ? 'selected' : ''; ?>><?php echo htmlspecialchars($categoria['descripcion'], ENT_QUOTES, 'UTF-8'); ?></option>
                         <?php endforeach; ?>
                       </select>
                     </td>
                     <td>
-                      <select name="trabajo_id[]" class="input-table select-trabajo" required disabled>
-                        <option value="" disabled selected>Seleccionar trabajo...</option>
+                      <select name="trabajo_id[]" class="input-table select-trabajo" required <?php echo $fila_trabajo ? '' : 'disabled'; ?>>
+                        <option value="" disabled <?php echo $fila_trabajo ? '' : 'selected'; ?>>Seleccionar trabajo...</option>
                         <?php foreach ($trabajos_catalogo as $trabajo): ?>
                           <option value="<?php echo (int)$trabajo['id']; ?>"
                                   data-categoria="<?php echo (int)$trabajo['id_categoria']; ?>"
-                                  data-precio="<?php echo htmlspecialchars((string)$trabajo['precio'], ENT_QUOTES, 'UTF-8'); ?>">
+                                  data-precio="<?php echo htmlspecialchars((string)$trabajo['precio'], ENT_QUOTES, 'UTF-8'); ?>"
+                                  <?php echo $fila_trabajo && (int)$fila_trabajo['id_trabajo'] === (int)$trabajo['id'] ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($trabajo['nombre'], ENT_QUOTES, 'UTF-8'); ?>
                           </option>
                         <?php endforeach; ?>
                       </select>
                     </td>
-                    <td><input type="number" step="0.01" name="precio_unitario[]" class="input-table input-precio" placeholder="$ 0,00" readonly></td>
-                    <td><input type="number" name="cantidad[]" class="input-table input-cantidad" value="1" min="1" placeholder="0" required></td>
+                    <td><input type="number" step="0.01" name="precio_unitario[]" class="input-table input-precio" placeholder="$ 0,00" value="<?php echo $fila_trabajo ? htmlspecialchars((string)$fila_trabajo['precio_unitario'], ENT_QUOTES, 'UTF-8') : ''; ?>" readonly></td>
+                    <td><input type="number" name="cantidad[]" class="input-table input-cantidad" value="<?php echo $fila_trabajo ? (int)$fila_trabajo['cantidad'] : 1; ?>" min="1" placeholder="0" required></td>
                     <td class="text-bold celda-subtotal">$0.00</td>
                     <td class="actions-cell">
                       <button type="button" class="action-btn text-danger btn-eliminar-fila"><i class="fa-regular fa-trash-can"></i></button>
                     </td>
                   </tr>
+                  <?php endforeach; ?>
                 </tbody>
               </table>
             </div>
@@ -192,7 +229,7 @@ $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
                 <input type="hidden" name="monto_total_oculto" id="monto_total_oculto" value="0">
               </div>
               <div class="header-actions">
-                <button type="submit" class="btn btn-primary" id="btn-finalizar-presupuesto">Guardar Presupuesto</button>
+                <button type="submit" class="btn btn-primary" id="btn-finalizar-presupuesto"><?php echo $presupuesto_seleccionado ? 'Guardar cambios' : 'Guardar Presupuesto'; ?></button>
               </div>
             </div>
           </div>
