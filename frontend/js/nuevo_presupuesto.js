@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    debugger; // Para depuración en el navegador
     // 1. Cargar los datos del cliente si viene pasado por URL (ej: ?id_cliente=3)
     const urlParams = new URLSearchParams(window.location.search);
     const idCliente = urlParams.get('id_cliente');
+    const URL_API = '../api/presupuestos.php';
 
     if (idCliente) {
-        fetch(`api.php?action=get_cliente&id=${idCliente}`)
+        fetch(`${URL_API}?action=get_cliente&id=${idCliente}`)
             .then(res => res.json())
             .then(cliente => {
                 if (cliente && !cliente.error) {
@@ -77,37 +77,43 @@ document.addEventListener('DOMContentLoaded', () => {
         if (totalDisplay) totalDisplay.textContent = `Total $${totalFinal.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     }
 
-    // Evento: Agregar nueva fila de trabajo
+    function actualizarTrabajosDeFila(fila) {
+        const categoria = fila.querySelector('.select-categoria');
+        const trabajo = fila.querySelector('.select-trabajo');
+        const precio = fila.querySelector('.input-precio');
+        if (!categoria || !trabajo || !precio) return;
+
+        trabajo.value = '';
+        trabajo.disabled = categoria.value === '';
+        precio.value = '';
+
+        trabajo.querySelectorAll('option[data-categoria]').forEach(opcion => {
+            const disponible = opcion.dataset.categoria === categoria.value;
+            opcion.hidden = !disponible;
+            opcion.disabled = !disponible;
+        });
+    }
+
+    // Evento: Agregar una fila con las categorías y trabajos del catálogo.
     if (btnAddTrabajo && tablaTrabajos) {
         btnAddTrabajo.addEventListener('click', (e) => {
             e.preventDefault();
-            const nuevaFila = document.createElement('tr');
-            nuevaFila.innerHTML = `
-                <td>
-                    <select class="input-table input-categoria">
-                        <option value="" disabled selected>Seleccionar categoría ...</option>
-                        <option value="Canalización">Canalización</option>
-                        <option value="Cableado">Cableado</option>
-                        <option value="Tableros">Tableros</option>
-                        <option value="Colocacion artefactos">Colocación artefactos</option>
-                        <option value="Boca Completa">Boca Completa</option>
-                    </select>
-                </td>
-                <td>
-                    <select class="input-table input-tipo">
-                        <option value="" disabled selected>Seleccionar tipo ...</option>
-                        <option value="Canalización embutida plastica">Canalización embutida plástica</option>
-                        <option value="Canalización embutida Metal">Canalización embutida Metal</option>
-                        <option value="De Aplique o empotrado">De Aplique o empotrado</option>
-                    </select>
-                </td>
-                <td><input type="number" step="0.01" class="input-table input-precio" placeholder="$ 0,00"></td>
-                <td><input type="number" class="input-table input-cantidad" placeholder="0"></td>
-                <td class="text-bold celda-subtotal">$0.00</td>
-                <td class="actions-cell">
-                    <button type="button" class="action-btn text-danger btn-eliminar-fila"><i class="fa-regular fa-trash-can"></i></button>
-                </td>
-            `;
+            const nuevaFila = tablaTrabajos.querySelector('tr').cloneNode(true);
+            const categoria = nuevaFila.querySelector('.select-categoria');
+            const trabajo = nuevaFila.querySelector('.select-trabajo');
+            const precio = nuevaFila.querySelector('.input-precio');
+            const cantidad = nuevaFila.querySelector('.input-cantidad');
+
+            categoria.value = '';
+            trabajo.value = '';
+            trabajo.disabled = true;
+            trabajo.querySelectorAll('option[data-categoria]').forEach(opcion => {
+                opcion.hidden = false;
+                opcion.disabled = false;
+            });
+            precio.value = '';
+            cantidad.value = '1';
+            nuevaFila.querySelector('.celda-subtotal').textContent = '$0.00';
             tablaTrabajos.appendChild(nuevaFila);
         });
     }
@@ -115,6 +121,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Eventos de tabla
     if (tablaTrabajos) {
         tablaTrabajos.addEventListener('input', calcularTotales);
+        tablaTrabajos.addEventListener('change', (e) => {
+            const fila = e.target.closest('tr');
+            if (!fila) return;
+
+            if (e.target.matches('.select-categoria')) {
+                actualizarTrabajosDeFila(fila);
+            } else if (e.target.matches('.select-trabajo')) {
+                const seleccion = e.target.selectedOptions[0];
+                const precio = fila.querySelector('.input-precio');
+                precio.value = seleccion?.dataset.precio || '';
+            }
+            calcularTotales();
+        });
         tablaTrabajos.addEventListener('click', (e) => {
             if (e.target.closest('.btn-eliminar-fila')) {
                 e.target.closest('tr').remove();
@@ -138,84 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     if (inputAjuste) inputAjuste.addEventListener('input', calcularTotales);
-
-    // 3. Función unificada para Guardar Presupuesto según el Estado
-    async function guardarPresupuestoConEstado(idEstado) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const idClienteUrl = urlParams.get('id_cliente');
-
-        const payload = {
-            id_cliente: idClienteUrl || null,
-            cliente: {
-                nombre: document.getElementById('client-name')?.value,
-                telefono: document.getElementById('client-phone')?.value,
-                email: document.getElementById('client-email')?.value,
-                direccion: document.getElementById('client-address')?.value
-            },
-            ajuste_general: parseFloat(document.getElementById('adjustment')?.value || 100),
-            total: parseFloat(document.getElementById('total-presupuesto')?.textContent.replace(/[^\d.]/g, '')) || 0,
-            id_estado: idEstado, // 1 = Borrador, 2 = Enviado/Definitivo
-            items: []
-        };
-
-        const tablaTrabajos = document.getElementById('tabla-trabajos');
-        if (tablaTrabajos) {
-            tablaTrabajos.querySelectorAll('tr').forEach(tr => {
-                const cat = tr.querySelector('.input-categoria')?.value;
-                const tipo = tr.querySelector('.input-tipo')?.value;
-                const precio = parseFloat(tr.querySelector('.input-precio')?.value) || 0;
-                const cant = parseInt(tr.querySelector('.input-cantidad')?.value) || 0;
-
-                if (cat) {
-                    payload.items.push({
-                        categoria: cat,
-                        tipo: tipo,
-                        precio_unitario: precio,
-                        cantidad: cant,
-                        subtotal: precio * cant
-                    });
-                }
-            });
-        }
-
-        try {
-            const res = await fetch('api.php?action=guardar_presupuesto', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            
-            if (data.success) {
-                const mensaje = idEstado === 1 
-                    ? '¡Borrador guardado correctamente!' 
-                    : '¡Presupuesto finalizado y enviado!';
-                alert(mensaje);
-                
-                if (idEstado === 2) {
-                    window.print(); // Solo abre el menú de impresión si es definitivo
-                }
-
-                window.location.href = 'cliente.html';
-            } else {
-                alert('Error al guardar: ' + (data.error || 'No se pudo procesar la solicitud'));
-            }
-        } catch (err) {
-            console.error('Error de conexión al guardar presupuesto:', err);
-            alert('Ocurrió un error al intentar guardar el presupuesto.');
-        }
-    }
-
-    // 4. Asignar los eventos a tus dos botones HTML
-    const btnBorrador = document.getElementById('btn-guardar-borrador');
-    if (btnBorrador) {
-        btnBorrador.addEventListener('click', () => guardarPresupuestoConEstado(1));
-    }
-
-    const btnFinalizar = document.getElementById('btn-finalizar-presupuesto');
-    if (btnFinalizar) {
-        btnFinalizar.addEventListener('click', () => guardarPresupuestoConEstado(2));
-    }
 
     // Mandar por WhatsApp
     const btnEnviar = document.getElementById('btn-enviar-whatsapp');

@@ -151,11 +151,9 @@ class Presupuesto {
 
             $marcadores = implode(',', array_fill(0, count($itemsPorTrabajo), '?'));
             $stmt = $this->db->prepare(
-                "SELECT t.id, COALESCE(ut.precio_modificado, t.precio_base) AS precio
+                "SELECT t.id, t.precio
                  FROM trabajo t
-                 LEFT JOIN usuario_trabajo ut
-                   ON ut.id_trabajo = t.id AND ut.id_usuario = ?
-                 WHERE t.id IN ($marcadores)"
+                 WHERE t.id_usuario = ? AND t.id IN ($marcadores)"
             );
             $stmt->execute(array_merge([(int)$id_usuario], array_keys($itemsPorTrabajo)));
             $precios = [];

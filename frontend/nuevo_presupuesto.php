@@ -48,15 +48,20 @@ $stmt_clientes->execute([$id_usuario_activo]);
 $clientes = $stmt_clientes->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt_trabajos = $conexion->prepare(
-    'SELECT t.id, t.nombre, COALESCE(ut.precio_modificado, t.precio_base) AS precio_base,
-            c.descripcion AS categoria
+    'SELECT t.id, t.nombre, t.id_categoria, t.precio
      FROM trabajo t
      INNER JOIN categoria c ON t.id_categoria = c.id
-     LEFT JOIN usuario_trabajo ut ON t.id = ut.id_trabajo AND ut.id_usuario = ?
-     ORDER BY c.id, t.nombre'
+     WHERE t.id_usuario = ?
+     ORDER BY c.descripcion, t.nombre'
 );
 $stmt_trabajos->execute([$id_usuario_activo]);
 $trabajos_catalogo = $stmt_trabajos->fetchAll(PDO::FETCH_ASSOC);
+
+$stmt_categorias = $conexion->prepare(
+    'SELECT id, descripcion FROM categoria ORDER BY descripcion'
+);
+$stmt_categorias->execute();
+$categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -137,6 +142,7 @@ $trabajos_catalogo = $stmt_trabajos->fetchAll(PDO::FETCH_ASSOC);
               <table>
                 <thead>
                   <tr>
+                    <th>Categoria</th>
                     <th>Trabajo del Catálogo</th>
                     <th>Precio Unit.</th>
                     <th>Cant.</th>
@@ -147,17 +153,27 @@ $trabajos_catalogo = $stmt_trabajos->fetchAll(PDO::FETCH_ASSOC);
                 <tbody id="tabla-trabajos">
                   <tr>
                     <td>
-                      <select name="trabajo_id[]" class="input-table select-trabajo">
+                      <select name="categoria[]" class="input-table select-categoria" required>
+                        <option value="" disabled selected>Seleccionar categoría...</option>
+                        <?php foreach ($categorias as $categoria): ?>
+                          <option value="<?php echo (int)$categoria['id']; ?>"><?php echo htmlspecialchars($categoria['descripcion'], ENT_QUOTES, 'UTF-8'); ?></option>
+                        <?php endforeach; ?>
+                      </select>
+                    </td>
+                    <td>
+                      <select name="trabajo_id[]" class="input-table select-trabajo" required disabled>
                         <option value="" disabled selected>Seleccionar trabajo...</option>
-                        <?php foreach ($trabajos_catalogo as $t): ?>
-                          <option value="<?php echo $t['id']; ?>" data-precio="<?php echo $t['precio_base']; ?>">
-                            <?php echo htmlspecialchars($t['categoria'] . ' - ' . $t['nombre'], ENT_QUOTES, 'UTF-8'); ?> ($<?php echo htmlspecialchars((string)$t['precio_base'], ENT_QUOTES, 'UTF-8'); ?>)
+                        <?php foreach ($trabajos_catalogo as $trabajo): ?>
+                          <option value="<?php echo (int)$trabajo['id']; ?>"
+                                  data-categoria="<?php echo (int)$trabajo['id_categoria']; ?>"
+                                  data-precio="<?php echo htmlspecialchars((string)$trabajo['precio'], ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($trabajo['nombre'], ENT_QUOTES, 'UTF-8'); ?>
                           </option>
                         <?php endforeach; ?>
                       </select>
                     </td>
-                    <td><input type="number" step="0.01" name="precio_unitario[]" class="input-table input-precio" placeholder="$ 0,00"></td>
-                    <td><input type="number" name="cantidad[]" class="input-table input-cantidad" value="1" placeholder="0"></td>
+                    <td><input type="number" step="0.01" name="precio_unitario[]" class="input-table input-precio" placeholder="$ 0,00" readonly></td>
+                    <td><input type="number" name="cantidad[]" class="input-table input-cantidad" value="1" min="1" placeholder="0" required></td>
                     <td class="text-bold celda-subtotal">$0.00</td>
                     <td class="actions-cell">
                       <button type="button" class="action-btn text-danger btn-eliminar-fila"><i class="fa-regular fa-trash-can"></i></button>
