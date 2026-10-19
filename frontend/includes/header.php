@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . "/../../api/auth.php";
 if (obtenerUsuarioAutenticado() === null) {
-  header("Location: login.html");
+  header("Location: login.php");
   exit;
 }
 ?>

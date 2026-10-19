@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    debugger; // Para depuración en el navegador
     // 1. Cargar los datos del cliente si viene pasado por URL (ej: ?id_cliente=3)
     const urlParams = new URLSearchParams(window.location.search);
     const idCliente = urlParams.get('id_cliente');

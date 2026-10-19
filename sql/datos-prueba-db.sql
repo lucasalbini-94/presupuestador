@@ -25,33 +25,7 @@ INSERT INTO unidad (id, descripcion) VALUES
 
 
 -- =====================================================
--- 2. CATÁLOGO GLOBAL DE TRABAJOS (Precios base del sistema)
--- =====================================================
-
-INSERT INTO trabajo (id, nombre, precio_base, id_categoria, id_unidad) VALUES
--- Categoría 1: Cableado
-(1, 'Cableado de circuito de iluminación / tomas', 3500.00, 1, 1),
-(2, 'Pasado de conductores por línea troncal', 800.00, 1, 2),
-
--- Categoría 2: Canalización
-(3, 'Canalización embutida en mampostería', 2000.00, 2, 2),
-(4, 'Tendido de cañería a la vista / cablecanal', 1400.00, 2, 2),
-
--- Categoría 3: Instalación luminarias
-(5, 'Colocación de panel LED embutir / plafón', 4200.00, 3, 3),
-(6, 'Montaje de artefacto colgante / araña', 7500.00, 3, 3),
-
--- Categoría 4: Instalación artefactos
-(7, 'Instalación circuito y conexión de aire acondicionado', 15000.00, 4, 3),
-(8, 'Colocación de extractor de baño / campana', 6000.00, 4, 3),
-
--- Categoría 5: Tableros y PE
-(9, 'Armado y conexionado de Tablero (hasta 6 módulos)', 24000.00, 5, 3),
-(10, 'Instalación de jabalina con cámara y medición de PAT', 18000.00, 5, 3);
-
-
--- =====================================================
--- 3. USUARIOS Y CONFIGURACIONES
+-- 2. USUARIOS Y CONFIGURACIONES
 -- =====================================================
 
 -- Contraseña de prueba para ambos usuarios: Demo1234! (solo desarrollo).
@@ -65,25 +39,7 @@ INSERT INTO configuracion (id, id_usuario, validez_presupuesto, matricula, nro_m
 
 
 -- =====================================================
--- 4. PRECIOS PERSONALIZADOS POR USUARIO (usuario_trabajo)
--- Solo se guardan los que el electricista modificó respecto a la base
--- =====================================================
-
-INSERT INTO usuario_trabajo (id_usuario, id_trabajo, precio_modificado) VALUES
--- Martín (usuario 1) ajustó algunos precios al alza:
-(1, 1, 3800.00),   -- Boca de cableado: base $3500 -> cobra $3800
-(1, 4, 1500.00),   -- Cañería a la vista: base $1400 -> cobra $1500
-(1, 5, 4500.00),   -- Panel LED: base $4200 -> cobra $4500
-(1, 9, 26000.00),  -- Tablero: base $24000 -> cobra $26000
--- (Nota: para el trabajo 10 usa el precio_base de $18000 porque no lo modificó)
-
--- Federico (usuario 2) cobra más barato el cableado y más el tablero:
-(2, 1, 3200.00),   -- Boca de cableado: base $3500 -> cobra $3200
-(2, 9, 28000.00);  -- Tablero: base $24000 -> cobra $28000
-
-
--- =====================================================
--- 5. CLIENTES
+-- 3. CLIENTES
 -- =====================================================
 
 INSERT INTO cliente (id, nombre, apellido, direccion, telefono, email, id_usuario) VALUES
@@ -93,7 +49,30 @@ INSERT INTO cliente (id, nombre, apellido, direccion, telefono, email, id_usuari
 
 
 -- =====================================================
--- 6. PRESUPUESTOS
+-- 4. TRABAJOS Y PRECIOS POR USUARIO
+-- Cada trabajo pertenece directamente al usuario con su respectivo precio
+-- =====================================================
+
+INSERT INTO trabajo (id, nombre, precio, id_categoria, id_unidad, id_usuario) VALUES
+-- Trabajos de Martín (id_usuario = 1)
+(1, 'Cableado de circuito de iluminación / tomas', 3800.00, 1, 1, 1),
+(2, 'Pasado de conductores por línea troncal', 800.00, 1, 2, 1),
+(3, 'Canalización embutida en mampostería', 2000.00, 2, 2, 1),
+(4, 'Tendido de cañería a la vista / cablecanal', 1500.00, 2, 2, 1),
+(5, 'Colocación de panel LED embutir / plafón', 4500.00, 3, 3, 1),
+(6, 'Montaje de artefacto colgante / araña', 7500.00, 3, 3, 1),
+(7, 'Instalación circuito y conexión de aire acondicionado', 15000.00, 4, 3, 1),
+(8, 'Colocación de extractor de baño / campana', 6000.00, 4, 3, 1),
+(9, 'Armado y conexionado de Tablero (hasta 6 módulos)', 26000.00, 5, 3, 1),
+(10, 'Instalación de jabalina con cámara y medición de PAT', 18000.00, 5, 3, 1),
+
+-- Trabajos de Federico (id_usuario = 2)
+(11, 'Cableado de circuito de iluminación / tomas', 3200.00, 1, 1, 2),
+(12, 'Armado y conexionado de Tablero (hasta 6 módulos)', 28000.00, 5, 3, 2);
+
+
+-- =====================================================
+-- 5. PRESUPUESTOS
 -- =====================================================
 
 INSERT INTO presupuesto (id, codigo, monto, fecha_alta, id_cliente, id_estado) VALUES
@@ -108,19 +87,18 @@ INSERT INTO presupuesto (id, codigo, monto, fecha_alta, id_cliente, id_estado) V
 
 
 -- =====================================================
--- 7. DETALLE DE ÍTEMS DEL PRESUPUESTO
--- Registra el precio unitario congelado al momento de crear el presupuesto
+-- 6. DETALLE DE ÍTEMS DEL PRESUPUESTO
 -- =====================================================
 
 INSERT INTO presupuesto_trabajo (id_presupuesto, id_trabajo, cantidad, precio_unitario) VALUES
--- Presupuesto 1:
-(1, 1, 12.00, 3800.00),   -- 12 bocas de cableado ($45.600) -> precio personalizado
-(1, 4, 15.00, 1500.00),   -- 15 metros cablecanal ($22.500) -> precio personalizado
-(1, 5, 6.00, 4500.00),    -- 6 paneles LED ($27.000)       -> precio personalizado
+-- Presupuesto 1 (Martín):
+(1, 1, 12.00, 3800.00),   -- 12 bocas de cableado ($45.600)
+(1, 4, 15.00, 1500.00),   -- 15 metros cablecanal ($22.500)
+(1, 5, 6.00, 4500.00),    -- 6 paneles LED ($27.000)
 
--- Presupuesto 2:
-(2, 9, 1.00, 26000.00),   -- 1 armado tablero ($26.000)    -> precio personalizado
-(2, 10, 1.00, 18000.00),  -- 1 jabalina + PAT ($18.000)    -> precio base del catálogo
+-- Presupuesto 2 (Martín):
+(2, 9, 1.00, 26000.00),   -- 1 armado tablero ($26.000)
+(2, 10, 1.00, 18000.00),  -- 1 jabalina + PAT ($18.000)
 
--- Presupuesto 3:
-(3, 1, 8.00, 3200.00);    -- 8 bocas de cableado ($25.600)  -> precio personalizado de Federico
+-- Presupuesto 3 (Federico):
+(3, 11, 8.00, 3200.00);   -- 8 bocas de cableado con el trabajo id=11 perteneciente a Federico ($25.600)

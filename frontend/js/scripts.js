@@ -10,7 +10,7 @@ async function cerrarSesion(button) {
             throw new Error(`No se pudo cerrar sesión (HTTP ${respuesta.status}).`);
         }
 
-        window.location.assign('login.html');
+        window.location.assign('login.php');
     } catch (error) {
         console.error('Error al cerrar sesión:', error);
         alert(error.message || 'No se pudo cerrar sesión. Intentá nuevamente.');

@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../api/auth.php';
 $id_usuario_activo = obtenerUsuarioAutenticado();
 if ($id_usuario_activo === null) {
-    header('Location: login.html');
+    header('Location: login.php');
     exit;
 }
 

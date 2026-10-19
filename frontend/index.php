@@ -1,7 +1,7 @@
 <?php
 $pageTitle = "Inicio - Presupuestador";
 $currentPage = "index";
-
+require_once __DIR__ . '/../api/auth.php';
 // Incluimos Header y Sidebar reutilizables
 require_once "includes/header.php";
 require_once "includes/aside.php";
