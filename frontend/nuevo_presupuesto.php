@@ -94,6 +94,21 @@ $stmt_categorias = $conexion->prepare(
 $stmt_categorias->execute();
 $categorias = $stmt_categorias->fetchAll(PDO::FETCH_ASSOC);
 
+$stmt_estados = $conexion->query('SELECT id, descripcion FROM estado ORDER BY id');
+$estados = $stmt_estados->fetchAll(PDO::FETCH_ASSOC);
+$idEstadoAprobado = null;
+$idEstadoRechazado = null;
+if ($presupuesto_seleccionado) {
+    foreach ($estados as $estado) {
+        $descripcionEstado = mb_strtolower($estado['descripcion']);
+        if ($descripcionEstado === 'aprobado') {
+            $idEstadoAprobado = (int)$estado['id'];
+        } elseif ($descripcionEstado === 'rechazado') {
+            $idEstadoRechazado = (int)$estado['id'];
+        }
+    }
+}
+
 $filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
 ?>
 <!DOCTYPE html>
@@ -134,7 +149,16 @@ $filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
           <div class="page-title">
             <h1><?php echo $presupuesto_seleccionado ? 'Editar presupuesto' : 'Nuevo presupuesto'; ?></h1>
             <p><?php echo $presupuesto_seleccionado ? 'Modificá el cliente o los trabajos del presupuesto.' : 'Elegí un cliente y agregá los trabajos para calcular el presupuesto.'; ?></p>
+            <?php if ($presupuesto_seleccionado): ?>
+              <p id="estado-presupuesto">Estado: <strong><?php echo htmlspecialchars($presupuesto_seleccionado['estado'], ENT_QUOTES, 'UTF-8'); ?></strong></p>
+            <?php endif; ?>
           </div>
+          <?php if ($presupuesto_seleccionado && in_array(mb_strtolower($presupuesto_seleccionado['estado']), ['borrador', 'pendiente'], true) && $idEstadoAprobado !== null && $idEstadoRechazado !== null): ?>
+            <div class="header-actions" id="acciones-estado-presupuesto">
+              <button type="button" class="btn btn-primary btn-cambiar-estado" data-id-estado="<?php echo $idEstadoAprobado; ?>">Aprobar presupuesto</button>
+              <button type="button" class="btn btn-outline btn-cambiar-estado" data-id-estado="<?php echo $idEstadoRechazado; ?>">Rechazar presupuesto</button>
+            </div>
+          <?php endif; ?>
         </header>
 
         <?php if ($error !== ''): ?>

@@ -10,35 +10,33 @@ if ($_SERVER["REQUEST_METHOD"] !== "GET") {
     exit;
 }
 
-$busqueda = trim((string)($_GET["q"] ?? ""));
-if (mb_strlen($busqueda) < 2) {
-    echo json_encode([], JSON_UNESCAPED_UNICODE);
-    exit;
-}
+$busqueda = trim((string)($_GET["search"] ?? $_GET["q"] ?? ""));
 
 require_once __DIR__ . "/conexion.php";
 
-$stmt = $conexion->prepare(
-    "SELECT id, nombre, apellido, telefono, email, direccion
-     FROM cliente
-     WHERE id_usuario = :id_usuario
-       AND (
-           nombre LIKE :busqueda
-           OR apellido LIKE :busqueda_apellido
-           OR CONCAT(nombre, ' ', apellido) LIKE :busqueda_nombre_completo
-           OR email LIKE :busqueda_email
-           OR telefono LIKE :busqueda_telefono
-       )
-     ORDER BY apellido, nombre
-     LIMIT 20"
-);
-$stmt->execute([
-    ":id_usuario" => $idUsuario,
-    ":busqueda" => "%" . $busqueda . "%",
-    ":busqueda_apellido" => "%" . $busqueda . "%",
-    ":busqueda_nombre_completo" => "%" . $busqueda . "%",
-    ":busqueda_email" => "%" . $busqueda . "%",
-    ":busqueda_telefono" => "%" . $busqueda . "%"
-]);
+$sql = "SELECT id, nombre, apellido, telefono, email, direccion
+        FROM cliente
+        WHERE id_usuario = :id_usuario";
+$parametros = [":id_usuario" => $idUsuario];
+
+if ($busqueda !== "") {
+    $sql .= " AND (
+                nombre LIKE :busqueda_nombre
+                OR apellido LIKE :busqueda_apellido
+                OR CONCAT(nombre, ' ', apellido) LIKE :busqueda_nombre_completo
+                OR email LIKE :busqueda_email
+                OR telefono LIKE :busqueda_telefono
+            )";
+    $termino = "%" . $busqueda . "%";
+    $parametros[":busqueda_nombre"] = $termino;
+    $parametros[":busqueda_apellido"] = $termino;
+    $parametros[":busqueda_nombre_completo"] = $termino;
+    $parametros[":busqueda_email"] = $termino;
+    $parametros[":busqueda_telefono"] = $termino;
+}
+
+$sql .= " ORDER BY apellido, nombre";
+$stmt = $conexion->prepare($sql);
+$stmt->execute($parametros);
 
 echo json_encode($stmt->fetchAll(), JSON_UNESCAPED_UNICODE);

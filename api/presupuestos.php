@@ -38,7 +38,20 @@ if ($metodo === 'GET') {
 
     $estado = $_GET['estado'] ?? null;
     $buscar = trim((string)($_GET['buscar'] ?? ''));
-    echo json_encode($modelo->obtenerTodos($id_usuario, $estado, $buscar), JSON_UNESCAPED_UNICODE);
+    $idCliente = null;
+    if (isset($_GET['id_cliente'])) {
+        $idCliente = filter_var($_GET['id_cliente'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($idCliente === false) {
+            http_response_code(400);
+            echo json_encode(["error" => "El identificador del cliente no es válido"], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+    }
+
+    echo json_encode(
+        $modelo->obtenerTodos($id_usuario, $estado, $buscar, $idCliente),
+        JSON_UNESCAPED_UNICODE
+    );
     exit();
 }
 
@@ -47,6 +60,36 @@ if ($metodo === 'POST' || $metodo === 'PUT') {
     if (!is_array($datos)) {
         http_response_code(400);
         echo json_encode(["error" => "El cuerpo de la solicitud no es válido"], JSON_UNESCAPED_UNICODE);
+        exit();
+    }
+
+    if (isset($datos['id_estado'])) {
+        if ($metodo !== 'PUT') {
+            http_response_code(405);
+            header("Allow: GET, PUT");
+            echo json_encode(["error" => "Usá PUT para cambiar el estado"], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        $idPresupuesto = filter_var($datos['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $idEstado = filter_var($datos['id_estado'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if ($idPresupuesto === false || $idEstado === false) {
+            http_response_code(400);
+            echo json_encode(["error" => "El presupuesto o el estado no son válidos"], JSON_UNESCAPED_UNICODE);
+            exit();
+        }
+
+        try {
+            $modelo->cambiar_estado($id_usuario, $idPresupuesto, $idEstado);
+            echo json_encode(["success" => true, "message" => "Estado actualizado correctamente"], JSON_UNESCAPED_UNICODE);
+        } catch (InvalidArgumentException $error) {
+            http_response_code(400);
+            echo json_encode(["error" => $error->getMessage()], JSON_UNESCAPED_UNICODE);
+        } catch (Throwable $error) {
+            error_log("Error al cambiar estado del presupuesto: " . $error->getMessage());
+            http_response_code(500);
+            echo json_encode(["error" => "No se pudo cambiar el estado del presupuesto"], JSON_UNESCAPED_UNICODE);
+        }
         exit();
     }
 

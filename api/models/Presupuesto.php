@@ -28,7 +28,7 @@ class Presupuesto {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function obtenerTodos($id_usuario, $estado = null, $buscar = null) {
+    public function obtenerTodos($id_usuario, $estado = null, $buscar = null, $id_cliente = null) {
         $sql = "SELECT
                     p.id,
                     p.codigo AS nro,
@@ -41,6 +41,11 @@ class Presupuesto {
                 WHERE c.id_usuario = :id_usuario";
 
         $params = [':id_usuario' => $id_usuario];
+
+        if ($id_cliente !== null) {
+            $sql .= " AND p.id_cliente = :id_cliente";
+            $params[':id_cliente'] = (int)$id_cliente;
+        }
 
         if ($estado && $estado !== 'todos') {
             $sql .= " AND LOWER(e.descripcion) = :estado";
@@ -227,5 +232,39 @@ class Presupuesto {
             }
             throw $error;
         }
+    }
+
+    public function cambiar_estado($id_usuario, $id_presupuesto, $id_estado) {
+        if ($id_usuario < 1 || $id_presupuesto < 1 || $id_estado < 1) {
+            throw new InvalidArgumentException('Datos inválidos para cambiar el estado del presupuesto.');
+        }
+
+        $stmt = $this->db->prepare(
+            "SELECT p.id
+             FROM presupuesto p
+             JOIN cliente c ON c.id = p.id_cliente
+             WHERE p.id = :id_presupuesto AND c.id_usuario = :id_usuario"
+        );
+        $stmt->execute([
+            ':id_presupuesto' => (int)$id_presupuesto,
+            ':id_usuario' => (int)$id_usuario
+        ]);
+        if (!$stmt->fetchColumn()) {
+            throw new InvalidArgumentException('El presupuesto seleccionado no está disponible.');
+        }
+
+        $stmt = $this->db->prepare("SELECT id FROM estado WHERE id = :id_estado");
+        $stmt->execute([':id_estado' => (int)$id_estado]);
+        if (!$stmt->fetchColumn()) {
+            throw new InvalidArgumentException('El estado seleccionado no está disponible.');
+        }
+
+        $stmt = $this->db->prepare(
+            "UPDATE presupuesto SET id_estado = :id_estado WHERE id = :id_presupuesto"
+        );
+        $stmt->execute([
+            ':id_estado' => (int)$id_estado,
+            ':id_presupuesto' => (int)$id_presupuesto
+        ]);
     }
 }

@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputAjuste = document.getElementById('adjustment');
     const labelAjuste = document.getElementById('adjustment-val');
     const totalDisplay = document.getElementById('total-presupuesto');
+    const accionesEstado = document.getElementById('acciones-estado-presupuesto');
 
     // 2. Recalcular Totales de la Cotización
     function calcularTotales() {
@@ -163,6 +164,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (inputAjuste) inputAjuste.addEventListener('input', calcularTotales);
     calcularTotales();
+
+    if (accionesEstado) {
+        accionesEstado.addEventListener('click', async (event) => {
+            const boton = event.target.closest('.btn-cambiar-estado');
+            if (!boton) return;
+
+            const accion = boton.textContent.trim();
+            if (!window.confirm(`¿Querés ${accion.toLocaleLowerCase()}?`)) return;
+
+            const idPresupuesto = document.querySelector('[name="id_presupuesto"]')?.value;
+            boton.disabled = true;
+            try {
+                const respuesta = await fetch(URL_API, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: idPresupuesto,
+                        id_estado: boton.dataset.idEstado
+                    })
+                });
+                const resultado = await respuesta.json();
+                if (!respuesta.ok || !resultado.success) {
+                    throw new Error(resultado.error || 'No se pudo cambiar el estado.');
+                }
+                window.location.reload();
+            } catch (error) {
+                console.error('Error al cambiar estado del presupuesto:', error);
+                window.alert(error.message || 'No se pudo cambiar el estado del presupuesto.');
+                boton.disabled = false;
+            }
+        });
+    }
 
     // Mandar por WhatsApp
     const btnEnviar = document.getElementById('btn-enviar-whatsapp');
