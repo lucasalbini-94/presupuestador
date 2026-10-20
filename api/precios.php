@@ -10,7 +10,7 @@ require_once __DIR__ . "/conexion.php";
 $metodo = $_SERVER["REQUEST_METHOD"];
 
 
-// GET: Listar trabajos con precio base o personalizado
+// GET: Listar trabajos y precios
 if ($metodo === "GET") {
     $sql = "SELECT 
                 t.id AS id_trabajo,
@@ -18,14 +18,11 @@ if ($metodo === "GET") {
                 c.descripcion AS categoria,
                 t.nombre AS trabajo,
                 u.descripcion AS unidad,
-                t.precio_base,
-                ut.precio_modificado,
-                COALESCE(ut.precio_modificado, t.precio_base) AS precio
+                t.precio
             FROM trabajo t
             JOIN categoria c ON t.id_categoria = c.id
             JOIN unidad u ON t.id_unidad = u.id
-            LEFT JOIN usuario_trabajo ut 
-                   ON t.id = ut.id_trabajo AND ut.id_usuario = :id_usuario
+            WHERE t.id_usuario = :id_usuario
             ORDER BY c.id, t.nombre";
 
     $stmt = $conexion->prepare($sql);
