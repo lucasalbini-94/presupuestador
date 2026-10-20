@@ -108,7 +108,7 @@ elseif ($metodo === "POST") {
                 $stmtC->execute([$usuarioId]);
 
                 // 4. Borrar precios modificados del usuario (usuario_trabajo)
-                $sqlUT = "DELETE FROM usuario_trabajo WHERE id_usuario = ?";
+                $sqlUT = "DELETE FROM trabajo WHERE id_usuario = ?";
                 $stmtUT = $conexion->prepare($sqlUT);
                 $stmtUT->execute([$usuarioId]);
 
