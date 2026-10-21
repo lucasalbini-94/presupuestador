@@ -201,11 +201,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviar = document.getElementById('btn-enviar-whatsapp');
     if (btnEnviar) {
         btnEnviar.addEventListener('click', () => {
-            const nombre   = document.getElementById('client-name')?.value.trim() || 'cliente';
-            const telefono = (document.getElementById('client-phone')?.value || '').replace(/\D/g, '');
+            const cliente = document.getElementById('id_cliente');
+            const opcionCliente = cliente?.selectedOptions[0];
+            if (!opcionCliente || !opcionCliente.value) {
+                window.alert('Seleccioná un cliente para preparar el mensaje.');
+                return;
+            }
 
-            const mensaje = `Hola ${nombre}, te envío el presupuesto.`;
-            window.open(`https://wa.me/${telefono}?text=${encodeURIComponent(mensaje)}`, '_blank');
+            const nombre = opcionCliente.textContent.trim();
+            const telefono = (opcionCliente.dataset.telefono || '').replace(/\D/g, '');
+            const mensaje = `Hola ${nombre}, te envío el presupuesto`;
+            const destinatario = telefono ? `/${telefono}` : '';
+            window.open(`https://wa.me${destinatario}?text=${encodeURIComponent(mensaje)}`, '_blank', 'noopener');
         });
     }
 
@@ -213,15 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnEnviarMail = document.getElementById('btn-enviar-email');
     if (btnEnviarMail) {
         btnEnviarMail.addEventListener('click', () => {
-            const nombre = document.getElementById('client-name')?.value.trim() || 'cliente';
-            const email  = document.getElementById('client-email')?.value.trim() || '';
+            const cliente = document.getElementById('id_cliente');
+            const opcionCliente = cliente?.selectedOptions[0];
+            if (!opcionCliente || !opcionCliente.value) {
+                window.alert('Seleccioná un cliente para preparar el mensaje.');
+                return;
+            }
 
+            const nombre = opcionCliente.textContent.trim();
+            const email = opcionCliente.dataset.email || '';
             const asunto = 'Presupuesto';
-            const cuerpo = `Hola ${nombre}, te envío el presupuesto.`;
-            const url = `mailto:${encodeURIComponent(email)}
-                      + ?subject=${encodeURIComponent(asunto)}
-                      + &body=${encodeURIComponent(cuerpo)}`;
-            window.open(url, '_blank');
+            const cuerpo = `Hola ${nombre}, te envío el presupuesto`;
+            const destinatario = encodeURIComponent(email).replace(/%40/gi, '@');
+            const url = `mailto:${destinatario}?subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+            window.location.href = url;
         });
     }
 });

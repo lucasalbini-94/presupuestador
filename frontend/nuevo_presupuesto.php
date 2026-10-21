@@ -73,7 +73,7 @@ if ($idPresupuesto !== null && $idPresupuesto !== false) {
 }
 
 $stmt_clientes = $conexion->prepare(
-    'SELECT id, nombre, apellido FROM cliente WHERE id_usuario = ? ORDER BY apellido, nombre'
+    'SELECT id, nombre, apellido, telefono, email FROM cliente WHERE id_usuario = ? ORDER BY apellido, nombre'
 );
 $stmt_clientes->execute([$id_usuario_activo]);
 $clientes = $stmt_clientes->fetchAll(PDO::FETCH_ASSOC);
@@ -180,7 +180,10 @@ $filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
                 <select name="id_cliente" id="id_cliente" class="input-table" required>
                   <option value="" disabled <?php echo $presupuesto_seleccionado ? '' : 'selected'; ?>>Seleccione un cliente...</option>
                   <?php foreach ($clientes as $c): ?>
-                    <option value="<?php echo (int)$c['id']; ?>" <?php echo $presupuesto_seleccionado && (int)$presupuesto_seleccionado['id_cliente'] === (int)$c['id'] ? 'selected' : ''; ?>>
+                    <option value="<?php echo (int)$c['id']; ?>"
+                            data-telefono="<?php echo htmlspecialchars((string)($c['telefono'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                            data-email="<?php echo htmlspecialchars((string)($c['email'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"
+                            <?php echo $presupuesto_seleccionado && (int)$presupuesto_seleccionado['id_cliente'] === (int)$c['id'] ? 'selected' : ''; ?>>
                       <?php echo htmlspecialchars($c['nombre'] . ' ' . $c['apellido'], ENT_QUOTES, 'UTF-8'); ?>
                     </option>
                   <?php endforeach; ?>
@@ -253,6 +256,7 @@ $filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
                 <input type="hidden" name="monto_total_oculto" id="monto_total_oculto" value="0">
               </div>
               <div class="header-actions">
+                <button type="button" class="btn btn-outline" id="btn-descargar-pdf">Descargar PDF</button>
                 <button type="submit" class="btn btn-primary" id="btn-finalizar-presupuesto"><?php echo $presupuesto_seleccionado ? 'Guardar cambios' : 'Guardar Presupuesto'; ?></button>
               </div>
             </div>
@@ -278,5 +282,8 @@ $filas_trabajo = $presupuesto_seleccionado['items'] ?? [null];
 
   <!-- Puedes conservar tu lógica de JS para calcular subtotales dinámicamente -->
   <script src="js/nuevo_presupuesto.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+  <script src="js/generar_pdf.js"></script>
 </body>
 </html>
