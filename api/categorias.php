@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . "/auth.php";
+requerirUsuarioApi();
 require_once __DIR__ . "/conexion.php";
 
 header("Content-Type: application/json; charset=utf-8");
@@ -10,7 +11,7 @@ if($_SERVER["REQUEST_METHOD"] !== "GET") {
     exit;
 }
 
-$stmt = $conexion->prepare("SELECT id, descripcion FROM categoria");
+$stmt = $conexion->prepare("SELECT id, descripcion FROM categoria ORDER BY descripcion");
 $stmt->execute();
 
 echo json_encode($stmt->fetchAll(), JSON_UNESCAPED_UNICODE);

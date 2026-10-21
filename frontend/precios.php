@@ -18,8 +18,6 @@ require_once "includes/aside.php";
     </header>
     <section class="menu_dos">
       <h2>Acciones</h2>
-      <button type="button" id="nuevo_trabajo" class="btn btn-outline">Nuevo trabajo</button>
-      <button type="button" id="importar" class="btn btn-outline">Importar base</button>
       <button type="button" id="agregar_precio" class="btn btn-primary">Agregar precio</button>
     </section>
 
@@ -27,23 +25,26 @@ require_once "includes/aside.php";
 <dialog id="ventana_precio">
   <h2>Agregar precio</h2>
 
-  <form method="dialog" class="dialog-form">
+  <form class="dialog-form">
 
-        <label for="categoria">Categoría</label>
-        <select id="categoria" name="categoria">
-            <option value="Cableado">Cableado</option>
-            <option value="Canalización">Canalización</option>
-            <option value="Tablero">Tablero</option>
-        </select> 
+        <label for="categoria_nuevo">Categoría</label>
+        <select id="categoria_nuevo" name="categoria" required>
+            <option value="">Cargando categorías...</option>
+        </select>
 
-        <label for="trabajo">Trabajo</label>
-        <input type="text" id="trabajo" name="trabajo" required/>
+        <label for="unidad_nueva">Unidad</label>
+        <select id="unidad_nueva" name="unidad" required>
+            <option value="">Cargando unidades...</option>
+        </select>
 
-        <label for="precio">Precio</label>
-        <input type="number" id="precio" name="precio" required/>
+        <label for="trabajo_nuevo">Trabajo</label>
+        <input type="text" id="trabajo_nuevo" name="trabajo" required/>
+
+        <label for="precio_nuevo">Precio</label>
+        <input type="number" id="precio_nuevo" name="precio" min="0" step="0.01" required/>
 
         <button type="submit" class="btn btn-primary">Guardar</button>
-        <button type="button" id="cancelar" class="btn btn-outline">Cancelar</button>
+        <button type="button" class="btn btn-outline">Cancelar</button>
 
   </form>
 </dialog>
@@ -52,25 +53,28 @@ require_once "includes/aside.php";
 
 <!-- VENTANA QUE APARECE CUANDO EDITO UN PRECIO YA EXISTENTE -->
 <dialog id="ventana_editar_precio">
-  <h2>Agregar precio</h2>
+  <h2>Editar precio</h2>
 
-  <form method="dialog" class="dialog-form">
+  <form class="dialog-form">
 
-        <label for="categoria">Categoría</label>
-        <select id="categoria" name="categoria">
-            <option value="Cableado">Cableado</option>
-            <option value="Canalización">Canalización</option>
-            <option value="Tablero">Tablero</option>
-        </select> 
+        <label for="categoria_editar">Categoría</label>
+        <select id="categoria_editar" name="categoria" required>
+            <option value="">Cargando categorías...</option>
+        </select>
 
-        <label for="trabajo">Trabajo</label>
-        <input type="text" id="trabajo" name="trabajo" />
+        <label for="unidad_editar">Unidad</label>
+        <select id="unidad_editar" name="unidad" required>
+            <option value="">Cargando unidades...</option>
+        </select>
 
-        <label for="precio">Precio</label>
-        <input type="number" id="precio" name="precio" />
+        <label for="trabajo_editar">Trabajo</label>
+        <input type="text" id="trabajo_editar" name="trabajo" required/>
+
+        <label for="precio_editar">Precio</label>
+        <input type="number" id="precio_editar" name="precio" min="0" step="0.01" required/>
 
         <button type="submit" class="btn btn-primary">Guardar</button>
-        <button type="button" id="cancelar" class="btn btn-outline">Cancelar</button>
+        <button type="button" class="btn btn-outline">Cancelar</button>
 
   </form>
 </dialog>
@@ -88,6 +92,7 @@ require_once "includes/aside.php";
             <tr>
                 <th>Categoría</th>
                 <th>Trabajo</th>
+                <th>Unidad</th>
                 <th>Mi precio</th>
                 <th>Acciones</th>
             </tr>
